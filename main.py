@@ -1,6 +1,7 @@
 import os
 import shutil
 import click
+import questionary
 
 DIRETORY_TEMPLATES = os.path.join(os.path.dirname(__file__), "templates")
 
@@ -23,9 +24,15 @@ def copy_template(
     db_settings = ""
     if db:
         if db == "postgres":
-            db_lib = "psycopg2-binary" if framework == "django" else "asyncpg"
+            if framework in ["django", "flask"]:
+                db_lib = "psycopg2-binary"
+            else:
+                db_lib = "asyncpg"
         elif db == "mysql":
-            db_lib = "mysqlclient" if framework == "django" else "aiomysql"
+            if framework in ["django", "flask"]:
+                db_lib = "mysqlclient"
+            else:
+                db_lib = "aiomysql"
         elif db == "sqlite":
             db_lib = None
     if db_lib:
@@ -40,25 +47,6 @@ def copy_template(
             with open(req_path, "w", encoding="utf-8") as f:
                 for lib in libs:
                     f.write(f"{lib}\n")
-    if framework == "django" and db:
-        if db == "postgres":
-            db_settings = f"'ENGINE': 'django.db.backends.postgresql',\n        'NAME': os.getenv('DB_NAME', 'postgres'),\n        'USER': os.getenv('DB_USER', '{db_user}'),\n        'PASSWORD': os.getenv('DB_PASSWORD', '{db_password}'),\n        'HOST': os.getenv('DB_HOST', '{db_host}'),\n        'PORT': os.getenv('DB_PORT', '{db_port}'),"
-        elif db == "mysql":
-            db_settings = f"'ENGINE': 'django.db.backends.mysql',\n        'NAME': os.getenv('DB_NAME', 'mydb'),\n        'USER': os.getenv('DB_USER', '{db_user}'),\n        'PASSWORD': os.getenv('DB_PASSWORD', '{db_password}'),\n        'HOST': os.getenv('DB_HOST', '{db_host}'),\n        'PORT': os.getenv('DB_PORT', '{db_port}'),"
-        settings_path = os.path.join(dst, "config", "settings", "base.py")
-        if os.path.exists(settings_path):
-            with open(settings_path, "r", encoding="utf-8") as f:
-                content = f.read()
-            import re
-
-            content = re.sub(
-                r"'ENGINE': 'django\.db\.backends\.sqlite3',.*?\n\s*'NAME': BASE_DIR / 'db\.sqlite3',",
-                db_settings,
-                content,
-                flags=re.DOTALL,
-            )
-            with open(settings_path, "w", encoding="utf-8") as f:
-                f.write(content)
     if db and db != "sqlite":
         env_path = os.path.join(dst, ".env.example")
         if os.path.exists(env_path):
@@ -93,6 +81,39 @@ def copy_template(
     help="Banco de dados para o projeto",
 )
 def main(framework, name, libs, db):
+    popular_libs = [
+        "requests",
+        "pandas",
+        "numpy",
+        "matplotlib",
+        "seaborn",
+        "scikit-learn",
+        "tensorflow",
+        "pytorch",
+        "pytest",
+        "black",
+        "isort",
+        "mypy",
+        "pydantic",
+        "celery",
+        "redis",
+        "docker",
+        "kubernetes",
+        "awscli",
+        "boto3",
+    ]
+
+    add_libs = click.confirm(
+        "Deseja adicionar bibliotecas populares ao projeto?", default=False
+    )
+    selected_libs = list(libs)
+    if add_libs:
+        selected = questionary.checkbox(
+            "Selecione as bibliotecas que deseja adicionar:", choices=popular_libs
+        ).ask()
+        if selected:
+            selected_libs.extend(selected)
+
     db_user = None
     db_password = None
     db_host = None
@@ -104,10 +125,12 @@ def main(framework, name, libs, db):
         db_port = click.prompt(
             "Porta do banco", default="5432" if db == "postgres" else "3306"
         )
-    copy_template(framework, name, libs, db, db_user, db_password, db_host, db_port)
+    copy_template(
+        framework, name, selected_libs, db, db_user, db_password, db_host, db_port
+    )
     click.secho(f"Projeto {name} criado com base no template {framework}!", fg="green")
-    if libs:
-        click.secho(f"Bibliotecas adicionadas: {', '.join(libs)}", fg="yellow")
+    if selected_libs:
+        click.secho(f"Bibliotecas adicionadas: {', '.join(selected_libs)}", fg="yellow")
     click.secho(f"Banco de dados configurado: {db}", fg="cyan")
 
 
