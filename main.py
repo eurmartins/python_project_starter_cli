@@ -114,6 +114,8 @@ def main(framework, name, libs, db):
         "awscli",
         "boto3",
         "PyJWT",
+        "playwright",
+        "selenium",
     ]
 
     env_vars_needed = {
