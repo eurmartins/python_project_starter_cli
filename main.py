@@ -141,9 +141,13 @@ def main(framework, name, libs, db):
             for var in env_vars_needed[lib]:
                 if var not in env_vars_to_add:
                     if var == "JWT_ALGORITHM":
-                        value = click.prompt(f"Algoritmo JWT (ex: HS256)", default="HS256")
+                        value = click.prompt(
+                            f"Algoritmo JWT (ex: HS256)", default="HS256"
+                        )
                     elif var == "JWT_EXPIRATION_TIME":
-                        value = click.prompt(f"Tempo de expiração JWT (em minutos)", default="60")
+                        value = click.prompt(
+                            f"Tempo de expiração JWT (em minutos)", default="60"
+                        )
                     else:
                         value = click.prompt(f"Valor para {var}", default="")
                     env_vars_to_add[var] = value
@@ -160,7 +164,15 @@ def main(framework, name, libs, db):
             "Porta do banco", default="5432" if db == "postgres" else "3306"
         )
     copy_template(
-        framework, name, selected_libs, db, db_user, db_password, db_host, db_port, env_vars_to_add
+        framework,
+        name,
+        selected_libs,
+        db,
+        db_user,
+        db_password,
+        db_host,
+        db_port,
+        env_vars_to_add,
     )
     click.secho(f"Projeto {name} criado com base no template {framework}!", fg="green")
     if selected_libs:
