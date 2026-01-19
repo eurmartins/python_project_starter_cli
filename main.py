@@ -151,11 +151,11 @@ def main(framework, name, libs, db):
                 if var not in env_vars_to_add:
                     if var == "JWT_ALGORITHM":
                         value = click.prompt(
-                            f"Algoritmo JWT (ex: HS256)", default="HS256"
+                            "Algoritmo JWT (ex: HS256)", default="HS256"
                         )
                     elif var == "JWT_EXPIRATION_TIME":
                         value = click.prompt(
-                            f"Tempo de expiração JWT (em minutos)", default="60"
+                            "Tempo de expiração JWT (em minutos)", default="60"
                         )
                     else:
                         value = click.prompt(f"Valor para {var}", default="")

@@ -1,12 +1,13 @@
 # Python CLI Starter
 
-Uma ferramenta CLI para gerar projetos Python com templates pré-configurados para FastAPI, Flask e Django, seguindo as melhores práticas da comunidade.
+Uma ferramenta CLI para gerar projetos Python com templates pré-configurados para FastAPI, Flask e Django, seguindo as melhores práticas da comunidade. Suporta estruturas populares e Clean Architecture. Suporta estruturas populares e Clean Architecture.
 
 ## Funcionalidades
 
 - **Templates modernos**: Estruturas de projeto baseadas nas melhores práticas de cada framework
+- **Escolha de arquitetura**: Estrutura popular (comunitária) ou Clean Architecture
 - **Configuração de banco de dados**: Suporte a SQLite, PostgreSQL e MySQL com configuração automática
-- **Bibliotecas adicionais**: Permite adicionar dependências extras ao projeto
+- **Bibliotecas adicionais**: Permite adicionar dependências extras ao projeto, com configuração automática de variáveis de ambiente quando necessário
 - **Interativo**: Interface amigável para configuração
 
 ## Instalação
@@ -31,6 +32,7 @@ python main.py
 
 Será solicitado:
 - Framework (fastapi, flask, django)
+- Estrutura (popular ou clean)
 - Nome do projeto
 - Banco de dados (sqlite, postgres, mysql)
 - Se escolher postgres/mysql: usuário, senha, host e porta
@@ -51,7 +53,9 @@ python main.py --framework fastapi --name meu_projeto --db postgres --libs reque
 
 ## Estruturas dos Templates
 
-### Django
+### Estrutura Popular (Comunitária)
+
+#### Django
 
 ```
 django/
@@ -84,7 +88,7 @@ tests/
 └── test_health.py
 ```
 
-### FastAPI
+#### FastAPI
 
 ```
 fastapi/
@@ -117,7 +121,7 @@ fastapi/
 └── .gitignore
 ```
 
-### Flask
+#### Flask
 
 ```
 flask/
@@ -139,6 +143,106 @@ flask/
 └── .gitignore
 ```
 
+### Estrutura Clean Architecture
+
+#### Django Clean
+
+```
+django_clean/
+├── manage.py
+├── config/
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── apps/
+│   └── core/
+│       ├── __init__.py
+│       ├── domain/
+│       │   ├── __init__.py
+│       │   └── entities.py
+│       ├── usecases/
+│       │   ├── __init__.py
+│       │   └── hello_usecase.py
+│       ├── infra/
+│       │   ├── __init__.py
+│       │   └── repository.py
+│       ├── interfaces/
+│       │   ├── __init__.py
+│       │   ├── hello_controller.py
+│       │   └── urls.py
+│       ├── schemas/
+│       │   ├── __init__.py
+│       │   └── hello.py
+│       ├── apps.py
+│       └── tests/
+│           └── test_hello.py
+├── requirements.txt
+├── README.md
+├── .env.example
+└── .gitignore
+```
+
+#### FastAPI Clean
+
+```
+fastapi_clean/
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── domain/
+│   │   ├── __init__.py
+│   │   └── entities.py
+│   ├── usecases/
+│   │   ├── __init__.py
+│   │   └── hello_usecase.py
+│   ├── infra/
+│   │   ├── __init__.py
+│   │   └── repository.py
+│   ├── interfaces/
+│   │   ├── __init__.py
+│   │   └── hello_controller.py
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   └── hello.py
+├── tests/
+│   └── test_hello.py
+├── requirements.txt
+├── README.md
+├── .env.example
+└── .gitignore
+```
+
+#### Flask Clean
+
+```
+flask_clean/
+├── app/
+│   ├── __init__.py
+│   ├── extensions.py
+│   ├── config.py
+│   ├── domain/
+│   │   ├── __init__.py
+│   │   └── entities.py
+│   ├── usecases/
+│   │   ├── __init__.py
+│   │   └── hello_usecase.py
+│   ├── infra/
+│   │   ├── __init__.py
+│   │   └── repository.py
+│   ├── interfaces/
+│   │   ├── __init__.py
+│   │   └── hello_controller.py
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   └── hello.py
+├── tests/
+│   └── test_hello.py
+├── requirements.txt
+├── README.md
+├── .env.example
+└── .gitignore
+```
+
 ## Configuração de Banco de Dados
 
 ### SQLite (Padrão)
@@ -149,7 +253,31 @@ flask/
 - Dependências adicionadas automaticamente
 - Configuração via variáveis de ambiente
 - Para Django: configura `settings/base.py`
-- Para FastAPI/Flask: adiciona `DATABASE_URL` ao `.env.example`
+- Para FastAPI/Flask: adiciona `DATABASE_URL` ao `.env`
+
+## Bibliotecas Populares Disponíveis
+
+O CLI oferece uma seleção de bibliotecas populares para adicionar ao projeto:
+
+- **Web/HTTP**: requests, httpx
+- **Data Science**: pandas, numpy, matplotlib, seaborn, scikit-learn, tensorflow, pytorch
+- **Testes**: pytest
+- **Code Quality**: black, isort, mypy
+- **APIs**: pydantic, PyJWT
+- **Async/Task**: celery, redis
+- **DevOps**: docker, kubernetes, awscli, boto3
+- **Automação**: playwright, selenium
+
+## Configuração de Bibliotecas Adicionais
+
+Algumas bibliotecas requerem variáveis de ambiente específicas. Quando selecionadas, o CLI perguntará pelos valores necessários:
+
+- **PyJWT**: `JWT_SECRET`, `JWT_ALGORITHM`, `JWT_EXPIRATION_TIME`
+- **Celery**: `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND`
+- **Redis**: `REDIS_URL`
+- **Boto3/AWS CLI**: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`
+
+Essas variáveis são automaticamente adicionadas ao `.env` do projeto.
 
 ## Próximos Passos Após Criar o Projeto
 
@@ -159,7 +287,7 @@ flask/
    ```
 
 2. **Configurar ambiente**:
-   - Copie `.env.example` para `.env`
+   - O arquivo `.env` já foi criado com as configurações básicas
    - Ajuste as variáveis conforme necessário
 
 3. **Executar o projeto**:
