@@ -7,7 +7,7 @@ DIRETORY_TEMPLATES = os.path.join(os.path.dirname(__file__), "templates")
 
 
 def copy_template(
-    framework,
+    template_name,
     project_name,
     libs=None,
     db=None,
@@ -17,7 +17,7 @@ def copy_template(
     db_port=None,
     env_vars=None,
 ):
-    src = os.path.join(DIRETORY_TEMPLATES, framework)
+    src = os.path.join(DIRETORY_TEMPLATES, template_name)
     dst = os.path.join(os.getcwd(), project_name)
     shutil.copytree(src, dst)
     req_path = os.path.join(dst, "requirements.txt")
@@ -25,12 +25,12 @@ def copy_template(
     db_settings = ""
     if db:
         if db == "postgres":
-            if framework in ["django", "flask"]:
+            if template_name in ["django", "flask"]:
                 db_lib = "psycopg2-binary"
             else:
                 db_lib = "asyncpg"
         elif db == "mysql":
-            if framework in ["django", "flask"]:
+            if template_name in ["django", "flask"]:
                 db_lib = "mysqlclient"
             else:
                 db_lib = "aiomysql"
@@ -93,6 +93,13 @@ def copy_template(
     help="Banco de dados para o projeto",
 )
 def main(framework, name, libs, db):
+    structure = questionary.select(
+        "Escolha a estrutura do projeto:",
+        choices=["popular", "clean"],
+        default="popular",
+    ).ask()
+
+    template_name = f"{framework}_{structure}" if structure == "clean" else framework
     popular_libs = [
         "requests",
         "pandas",
@@ -166,7 +173,7 @@ def main(framework, name, libs, db):
             "Porta do banco", default="5432" if db == "postgres" else "3306"
         )
     copy_template(
-        framework,
+        template_name,
         name,
         selected_libs,
         db,
@@ -176,7 +183,10 @@ def main(framework, name, libs, db):
         db_port,
         env_vars_to_add,
     )
-    click.secho(f"Projeto {name} criado com base no template {framework}!", fg="green")
+    click.secho(
+        f"Projeto {name} criado com base no template {framework} ({structure})!",
+        fg="green",
+    )
     if selected_libs:
         click.secho(f"Bibliotecas adicionadas: {', '.join(selected_libs)}", fg="yellow")
     click.secho(f"Banco de dados configurado: {db}", fg="cyan")
