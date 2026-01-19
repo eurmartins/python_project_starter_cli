@@ -1,0 +1,1 @@
+# Serializers for Django REST Framework or similar
